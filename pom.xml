@@ -11,7 +11,7 @@
     <groupId>com.vonabe.server</groupId>
     <artifactId>game</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>game</name>
     <description>Game Server for Spring Boot</description>
     <url/>
