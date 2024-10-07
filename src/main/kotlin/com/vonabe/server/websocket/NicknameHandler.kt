@@ -7,10 +7,14 @@ import java.nio.file.Files
 @Component
 class NicknameHandler {
 
-    private val listNickname = Files.readAllLines(ClassPathResource("nicknames.csv").file.toPath())
+    private var listNickname: MutableList<String>? = null
+
+    init {
+        listNickname = Files.readAllLines(ClassPathResource("/nicknames.csv").file.toPath())
+    }
 
     fun randomNickname(): String {
-        return listNickname.random()
+        return listNickname?.random() ?: "Empty"
     }
 
 }
