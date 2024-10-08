@@ -9,11 +9,27 @@ import org.springframework.web.socket.handler.AbstractWebSocketHandler
 
 @Component
 class WebSocketHandler : AbstractWebSocketHandler() {
-    val sessions = Array<WebSocketSession>()
+    private val sessions = Array<WebSocketSession>()
 
     lateinit var connectListener: ConnectListener
     lateinit var messageListener: MessageListener
     lateinit var disconnectListener: DisconnectListener
+
+    fun broadcastMessageAsync(value: String) {
+        synchronized(sessions) {
+            sessions.forEach { session ->
+                kotlin.runCatching {
+                    // Проверяем, открыта ли сессия перед отправкой
+                    if (session.isOpen) {
+                        session.sendMessage(TextMessage(value))
+                    }
+                }.onFailure { ex ->
+                    // Логгирование ошибок
+                    ex.printStackTrace()
+                }
+            }
+        }
+    }
 
     override fun afterConnectionEstablished(session: WebSocketSession) {
         sessions.add(session)

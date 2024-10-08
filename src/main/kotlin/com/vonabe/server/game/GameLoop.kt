@@ -113,6 +113,7 @@ class GameLoop(
         }
         webSocketHandler.disconnectListener = object : DisconnectListener {
             override fun onDisconnect(session: WebSocketSession) {
+                println("Disconnect: ${session.id}")
                 val player = playersMap.get(session)
                 events.add(DisconnectUser(EventType.DISCONNECT, player.uid).toJson(mapper))
                 playersMap.remove(session)
@@ -190,7 +191,7 @@ class GameLoop(
             }
 
             bulletList
-                .filter { newTimestamp - it.timestamp > 10 }
+                .filter { newTimestamp - it.timestamp > 50 }
                 .forEach { bullet ->
                     bullet.position.add(
                         bullet.direction.cpy().scl(bullet.speed * (newTimestamp - bullet.timestamp))
@@ -215,9 +216,8 @@ class GameLoop(
             }
 
             // Check Collision player with bullet
-            val playerValues = playersMap.values()
             for (bullet in bulletsToCheck) {
-                for (player in playerValues) {
+                for (player in playersMap.values()) {
                     if (!isFarApart(bullet, player)) {
                         if (checkCollision(bullet, player)) {
                             sendPlayerList.add(player)
@@ -228,12 +228,14 @@ class GameLoop(
 
             // Check player collision
             // Оптимизированная проверка столкновений:
+            val playerValues = playersMap.values()
             playerValues.forEach { player1 ->
                 playerValues.forEach { player2 ->
                     if (player1 != player2 && !isFarApart(player1, player2)) {
                         if (checkCollision(player1, player2)) {
-                            if (sendPlayerList.contains(player1, true)) sendPlayerList.add(player1)
-                            if (sendPlayerList.contains(player2, true)) sendPlayerList.add(player2)
+//                            sendPlayerList.addAll(player1, player2)
+                            if (!sendPlayerList.contains(player1, true)) sendPlayerList.add(player1)
+                            if (!sendPlayerList.contains(player2, true)) sendPlayerList.add(player2)
                         }
                     }
                 }
@@ -267,17 +269,10 @@ class GameLoop(
 
             // Send packets for users
             synchronized(events) {
-                val sessions = webSocketHandler.sessions
                 var value: String?
                 while (!events.isEmpty) {
                     value = events.pop() ?: break
-                    sessions.forEach {
-                        kotlin.runCatching {
-                            it.sendMessage(TextMessage(value))
-                        }.onFailure {
-                            it.printStackTrace()
-                        }
-                    }
+                    webSocketHandler.broadcastMessageAsync(value)
                 }
             }
 
