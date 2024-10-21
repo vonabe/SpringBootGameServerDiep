@@ -70,6 +70,12 @@
         </dependency>
 
         <!--*********************************************************************************************************-->
+        <!-- https://mvnrepository.com/artifact/javax.vecmath/vecmath -->
+        <dependency>
+            <groupId>javax.vecmath</groupId>
+            <artifactId>vecmath</artifactId>
+            <version>1.5.2</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx-backend-headless -->
         <dependency>
             <groupId>com.badlogicgames.gdx</groupId>
@@ -91,6 +97,25 @@
             <classifier>natives-desktop</classifier>
         </dependency>
 
+        <!--        JAVAFX        -->
+        <!-- JavaFX Dependencies -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-controls</artifactId>
+            <version>19</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>19</version>
+        </dependency>
+
+        <!-- For converting between Swing and JavaFX images -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-swing</artifactId>
+            <version>19</version>
+        </dependency>
     </dependencies>
 
     <build>

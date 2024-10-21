@@ -3,7 +3,6 @@ package com.vonabe.server.utils
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 
-
 object DirectionMove {
     const val UP = 1 shl 0    // 0001
     const val DOWN = 1 shl 1  // 0010
@@ -14,20 +13,24 @@ object DirectionMove {
         val direction = Vector2()
         if ((this and UP) != 0) {
             // Двигаемся вверх
-            direction.y = speed
+            direction.y += 1
         }
         if ((this and DOWN) != 0) {
             // Двигаемся вниз
-            direction.y = -speed
+            direction.y -= 1
         }
         if ((this and LEFT) != 0) {
             // Двигаемся влево
-            direction.x = -speed
+            direction.x -= 1
         }
         if ((this and RIGHT) != 0) {
             // Двигаемся вправо
-            direction.x = speed
+            direction.x += 1
         }
+
+        if (direction.len() > 0)
+            direction.nor().scl(speed)
+
         return direction
     }
 
