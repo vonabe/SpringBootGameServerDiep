@@ -136,12 +136,8 @@ class PlayerService(
         }
 
         // Совмещаем два списки - измененные объекты коллизиями и переместившимися пользователями в один список.
-        val collisionList = collisionService.collision()
-        movePlayerList
-            .filter { !collisionList.contains(it, false) }
-            .apply {
-                collisionList.addAll(this.convert())
-            }
+        val collisionList = collisionService.collision() as HashSet
+        collisionList.addAll(movePlayerList)
 
         // Разделяем список объектов на категории для группировки в пакеты.
         val onlyPlayers = collisionList.filterIsInstance<Player>().toList()

@@ -19,6 +19,7 @@ import kotlin.random.Random
 class FoodService(
     private val noiseGenerator: NoiseMapGenerator,
     private var messageHandler: WebSocketHandler,
+    private val spatialGrid: SpatialGrid,
 ) : GameService {
 
     private val foodList = Array<Food>()
@@ -44,6 +45,7 @@ class FoodService(
                 it.remove = true
             }
             foodList.clear()
+            spatialGrid.clear()
             messageHandler.broadcastMessage(Foods(EventType.FOODS, emptyList()))
 
             val points = Array<Vector2>()
@@ -64,6 +66,7 @@ class FoodService(
             }.convert()
                 .let {
                     foodList.addAll(it)
+                    spatialGrid.addObjects(it)
                 }
             return previewBuffer
         }

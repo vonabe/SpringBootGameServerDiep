@@ -101,17 +101,19 @@ class BulletService(
                 }
                 bullet.timestamp = newTimestamp
 
-                if (bullet.remove || players.any { it.cameraViewport.getViewportGlobal().contains(bullet.position) }) {
+                if (bullet.remove) {
                     sendBulletList.add(bullet)
                 }
             }
 
         if (sendBulletList.notEmpty()) {
             players.forEach { player ->
-                val viewportGlobal = player.cameraViewport.getViewportGlobal()
-                val sendBullets = sendBulletList.filter { viewportGlobal.contains(it.position) || it.remove }
-                if (sendBullets.isNotEmpty()) {
-                    webSocketHandler.sendOnly(player.uid, Bullets(EventType.SHOTS, sendBullets))
+//                val viewportGlobal = player.cameraViewport.getViewportGlobal()
+//                val sendBullets = sendBulletList.filter { viewportGlobal.contains(it.position) || it.remove }
+
+                val bulletsForPlayer = sendBulletList.filter { it.checkNotify(player) }
+                if (bulletsForPlayer.isNotEmpty()) {
+                    webSocketHandler.sendOnly(player.uid, Bullets(EventType.SHOTS, bulletsForPlayer))
                 }
             }
             sendBulletList.clear()
@@ -120,12 +122,16 @@ class BulletService(
         val removeList = bullets.filter { it.remove }.convert()
         bullets.removeAll(removeList, false)
         bulletPool.freeAll(removeList)
+        notifyBulletMap.forEach {
+            it.value.removeAll(removeList.map { it.id }.toList().convert(), false)
+        }
     }
 
     private val notifyBulletMap = ObjectMap<String, Array<Int>>()
     private fun Bullet.checkNotify(player: Player): Boolean {
+        if (!notifyBulletMap.containsKey(player.uid)) notifyBulletMap.put(player.uid, Array<Int>())
         val viewport = player.cameraViewport.getViewportGlobal()
-        return viewport.contains(this.position) && (notifyBulletMap.containsKey(player.uid) && !notifyBulletMap.get(player.uid).contains(this.id))
+        return (viewport.contains(this.position) && (!notifyBulletMap.get(player.uid).contains(this.id))) || this.remove
     }
 
 }
